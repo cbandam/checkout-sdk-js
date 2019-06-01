@@ -3043,6 +3043,7 @@ declare interface ShopperConfig {
 
 declare interface ShopperCurrency extends StoreCurrency {
     exchangeRate: number;
+    isTransactional: boolean;
 }
 
 /**
