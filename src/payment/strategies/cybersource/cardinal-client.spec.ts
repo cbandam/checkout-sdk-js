@@ -99,7 +99,7 @@ describe('CardinalClient', () => {
             }
         });
 
-        it('avoids configuring myltiple times', async () => {
+        it('avoids configuring multiple times', async () => {
             let call: () => {};
 
             sdk.on = jest.fn((type, callback) => {
