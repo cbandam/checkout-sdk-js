@@ -58,7 +58,7 @@ describe('CardinalClient', () => {
 
             sdk.on = jest.fn((type, callback) => {
                 if (type.toString() === CardinalEventType.SetupCompleted) {
-                    call = callback;
+                    call = callback({ sessionId: '123455'});
                 } else {
                     jest.fn();
                 }
@@ -98,13 +98,35 @@ describe('CardinalClient', () => {
                 expect(error).toBeInstanceOf(MissingDataError);
             }
         });
+
+        it('avoids configuring myltiple times', async () => {
+            let call: () => {};
+
+            sdk.on = jest.fn((type, callback) => {
+                if (type.toString() === CardinalEventType.SetupCompleted) {
+                    call = callback({ sessionId: '123455'});
+                } else {
+                    jest.fn();
+                }
+            });
+
+            jest.spyOn(sdk, 'setup').mockImplementation(() => {
+                call();
+            });
+
+            await client.initialize(true);
+            await client.configure('token');
+            await client.configure('another_token');
+
+            expect(client.getClientToken()).toBe('token');
+        });
     });
 
     describe('#runBinProcess', () => {
         beforeEach(async () => {
             sdk.on = jest.fn((type, callback) => {
                 if (type.toString() === CardinalEventType.SetupCompleted) {
-                    setupCall = callback;
+                    setupCall = callback({ sessionId: '123455'});
                 }
             });
 
@@ -151,7 +173,7 @@ describe('CardinalClient', () => {
         beforeEach(async () => {
             sdk.on = jest.fn((type, callback) => {
                 if (type.toString() === CardinalEventType.SetupCompleted) {
-                    setupCall = callback;
+                    setupCall = callback({ sessionId: '123455'});
                 } else {
                     validatedCall = callback;
                 }
@@ -222,6 +244,39 @@ describe('CardinalClient', () => {
                 expect(error).toBeInstanceOf(StandardError);
                 expect(error.message).toBe('User failed authentication or an error was encountered while processing the transaction');
             }
+        });
+    });
+
+    describe('#getClientToken', () => {
+        beforeEach(async () => {
+            await client.initialize(true);
+        });
+
+        it('returns an error when the client is not configured', () => {
+            try {
+                client.getClientToken();
+            } catch (error) {
+                expect(error).toBeInstanceOf(NotInitializedError);
+            }
+        });
+
+        it('returns the client token used to configure the cardinal client', async () => {
+            sdk.on = jest.fn((type, callback) => {
+                if (type.toString() === CardinalEventType.SetupCompleted) {
+                    setupCall = callback({ sessionId: '123455'});
+                } else {
+                    validatedCall = callback;
+                }
+            });
+
+            jest.spyOn(sdk, 'setup').mockImplementation(() => {
+                setupCall();
+            });
+
+            const expectedToken = '123456';
+            await client.configure(expectedToken);
+
+            expect(client.getClientToken()).toBe(expectedToken);
         });
     });
 });
