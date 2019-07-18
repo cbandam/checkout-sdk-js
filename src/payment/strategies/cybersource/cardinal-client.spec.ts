@@ -58,7 +58,7 @@ describe('CardinalClient', () => {
 
             sdk.on = jest.fn((type, callback) => {
                 if (type.toString() === CardinalEventType.SetupCompleted) {
-                    call = callback({ sessionId: '123455'});
+                    call = callback;
                 } else {
                     jest.fn();
                 }
@@ -104,7 +104,7 @@ describe('CardinalClient', () => {
 
             sdk.on = jest.fn((type, callback) => {
                 if (type.toString() === CardinalEventType.SetupCompleted) {
-                    call = callback({ sessionId: '123455'});
+                    call = callback;
                 } else {
                     jest.fn();
                 }
@@ -126,7 +126,7 @@ describe('CardinalClient', () => {
         beforeEach(async () => {
             sdk.on = jest.fn((type, callback) => {
                 if (type.toString() === CardinalEventType.SetupCompleted) {
-                    setupCall = callback({ sessionId: '123455'});
+                    setupCall = callback;
                 }
             });
 
@@ -173,7 +173,7 @@ describe('CardinalClient', () => {
         beforeEach(async () => {
             sdk.on = jest.fn((type, callback) => {
                 if (type.toString() === CardinalEventType.SetupCompleted) {
-                    setupCall = callback({ sessionId: '123455'});
+                    setupCall = callback;
                 } else {
                     validatedCall = callback;
                 }
@@ -263,7 +263,7 @@ describe('CardinalClient', () => {
         it('returns the client token used to configure the cardinal client', async () => {
             sdk.on = jest.fn((type, callback) => {
                 if (type.toString() === CardinalEventType.SetupCompleted) {
-                    setupCall = callback({ sessionId: '123455'});
+                    setupCall = callback;
                 } else {
                     validatedCall = callback;
                 }
