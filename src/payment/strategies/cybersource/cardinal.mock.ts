@@ -53,7 +53,7 @@ export function getCardinalValidatedData(status: boolean, errorNumber?: number):
 }
 
 export function getCardinalValidatedDataWithActionCode(actionCode: CardinalValidatedAction, status: boolean, errorNumber?: number): CardinalValidatedData {
-    let data = getCardinalValidatedData(status, errorNumber);
+    const data = getCardinalValidatedData(status, errorNumber);
     data.ActionCode = actionCode;
 
     return data;
