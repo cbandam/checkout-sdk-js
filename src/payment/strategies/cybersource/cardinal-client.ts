@@ -108,23 +108,11 @@ export default class CardinalClient {
                 return new Promise<ThreeDSecureToken>((resolve, reject) => {
                     client.on(CardinalEventType.Validated, (data: CardinalValidatedData, jwt: string) => {
                         client.off(CardinalEventType.Validated);
-                        switch (data.ActionCode) {
-                            case CardinalValidatedAction.Success:
-                                resolve({ token: jwt });
-                                break;
-                            case CardinalValidatedAction.NoAction:
-                                if (data.ErrorNumber > 0) {
-                                    reject(new StandardError(data.ErrorDescription));
-                                } else {
-                                    resolve({ token: jwt });
-                                }
-                                break;
-                            case CardinalValidatedAction.Failure:
-                                reject(new StandardError('User failed authentication or an error was encountered while processing the transaction'));
-                                break;
-                            case CardinalValidatedAction.Error:
-                                reject(new StandardError(data.ErrorDescription));
+                        if (!jwt) {
+                            reject(new StandardError('User failed authentication or an error was encountered while processing the transaction.'));
                         }
+
+                        resolve({ token: jwt });
                     });
 
                     const continueObject = {

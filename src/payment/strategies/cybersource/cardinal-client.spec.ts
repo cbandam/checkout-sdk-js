@@ -9,6 +9,7 @@ import {
     getCardinalSDK,
     getCardinalThreeDSResult,
     getCardinalValidatedData,
+    getCardinalValidatedDataWithActionCode
 } from './cardinal.mock';
 import {
     CardinalClient,
@@ -75,7 +76,7 @@ describe('CardinalClient', () => {
             expect(sdk.setup).toHaveBeenCalledWith(CardinalInitializationType.Init, { jwt: 'token' });
         });
 
-        it('completes the setup process incorrectly', async () => {
+        it('completes the setup process with error', async () => {
             let call: (data: CardinalValidatedData, jwt: string) => {};
 
             sdk.on = jest.fn((type, callback) => {
@@ -87,7 +88,7 @@ describe('CardinalClient', () => {
             });
 
             jest.spyOn(sdk, 'setup').mockImplementation(() => {
-                call(getCardinalValidatedData(CardinalValidatedAction.Error, false, 1020), '');
+                call(getCardinalValidatedDataWithActionCode(CardinalValidatedAction.Error, false, 1020), '');
             });
 
             await client.initialize(true);
@@ -189,7 +190,7 @@ describe('CardinalClient', () => {
 
         it('returns a valid token', async () => {
             jest.spyOn(sdk, 'continue').mockImplementation(() => {
-                validatedCall(getCardinalValidatedData(CardinalValidatedAction.Success, true), 'token');
+                validatedCall(getCardinalValidatedData(true), 'token');
             });
 
             const promise = await client.getThreeDSecureData(getCardinalThreeDSResult(), getCardinalOrderData());
@@ -200,7 +201,7 @@ describe('CardinalClient', () => {
 
         it('returns a no action code', async () => {
             jest.spyOn(sdk, 'continue').mockImplementation(() => {
-                validatedCall(getCardinalValidatedData(CardinalValidatedAction.NoAction, false, 0), 'token');
+                validatedCall(getCardinalValidatedData(false, 0), 'token');
             });
 
             const promise = await client.getThreeDSecureData(getCardinalThreeDSResult(), getCardinalOrderData());
@@ -211,7 +212,7 @@ describe('CardinalClient', () => {
 
         it('returns an error and a no action code', async () => {
             jest.spyOn(sdk, 'continue').mockImplementation(() => {
-                validatedCall(getCardinalValidatedData(CardinalValidatedAction.NoAction, false, 3002), '');
+                validatedCall(getCardinalValidatedData(false, 3002), '');
             });
 
             try {
@@ -223,7 +224,7 @@ describe('CardinalClient', () => {
 
         it('returns an error code', async () => {
             jest.spyOn(sdk, 'continue').mockImplementation(() => {
-                validatedCall(getCardinalValidatedData(CardinalValidatedAction.Error, false, 3004), '');
+                validatedCall(getCardinalValidatedData(false, 3004), '');
             });
 
             try {
@@ -235,14 +236,14 @@ describe('CardinalClient', () => {
 
         it('returns a failure code', async () => {
             jest.spyOn(sdk, 'continue').mockImplementation(() => {
-                validatedCall(getCardinalValidatedData(CardinalValidatedAction.Failure, false, 3004), '');
+                validatedCall(getCardinalValidatedData(false, 3004), '');
             });
 
             try {
                 await client.getThreeDSecureData(getCardinalThreeDSResult(), getCardinalOrderData());
             } catch (error) {
                 expect(error).toBeInstanceOf(StandardError);
-                expect(error.message).toBe('User failed authentication or an error was encountered while processing the transaction');
+                expect(error.message).toBe('User failed authentication or an error was encountered while processing the transaction.');
             }
         });
     });
